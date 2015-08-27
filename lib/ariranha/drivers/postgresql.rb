@@ -18,11 +18,13 @@ module Ariranha
       end
 
       def backup_cmd
+        envs = {}
+        envs['PGPASSWORD'] = pgsql_password if pgsql_password
         cmd = 'pg_dump -Fc --no-acl --no-owner '
-        cmd += "--host #{pgsql_host} " if pgsql_host
-        cmd += "--username #{pgsql_user} " if pgsql_user
-        cmd += "--password #{pgsql_password} " if pgsql_password
-        cmd + "#{pgsql_database} > /tmp/#{filename}"
+        cmd += "--host=#{pgsql_host} " if pgsql_host
+        cmd += "--username=#{pgsql_user} " if pgsql_user
+        cmd += "#{pgsql_database} > /tmp/#{filename}"
+        [envs, cmd]
       end
 
       def filename

@@ -13,7 +13,7 @@ module Ariranha
 
       def backup
         puts "running #{backup_cmd}..."
-        _out, _err, _status = Open3.capture3 backup_cmd
+        _out, _err, _status = Open3.capture3(*backup_cmd)
         filename
       end
 

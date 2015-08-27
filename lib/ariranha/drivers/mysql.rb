@@ -19,12 +19,14 @@ module Ariranha
       end
 
       def backup_cmd
+        envs = {}
         cmd = "mysqldump -u#{mysql_user} "
         cmd += "-p#{mysql_password} " if mysql_password
         cmd += "--ssl_ca=#{mysql_cert_path} " if mysql_ssl
-        cmd + '--single-transaction --routines --triggers '\
-              "-h #{mysql_host} #{mysql_database} "\
-              "| gzip -c > /tmp/#{filename}"
+        cmd += '--single-transaction --routines --triggers '\
+               "-h #{mysql_host} #{mysql_database} "\
+               "| gzip -c > /tmp/#{filename}"
+        [envs, cmd]
       end
 
       def filename

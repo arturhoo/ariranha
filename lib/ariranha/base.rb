@@ -14,6 +14,7 @@ module Ariranha
       instances.each do |instance|
         filename = instance.backup
         directories.each { |dir| dir.upload(filename, instance.database) }
+        puts "deleting /tmp/#{filename}..."
         Open3.capture3 "rm -rf /tmp/#{filename}"
       end
     end

@@ -2,17 +2,24 @@ require 'fog'
 
 module Ariranha
   class Directory
+    ADAPTER_KEYS = {
+      'AWS' => [:aws_access_key_id, :aws_secret_access_key],
+      'Google' => [:google_storage_access_key_id,
+                   :google_storage_secret_access_key]
+    }
+
     def initialize(adapter, config, backups_to_keep = 3)
       @fog_storage = Fog::Storage.new(
-        "#{adapter.downcase}_access_key_id".to_sym => config['access_key'],
-        "#{adapter.downcase}_secret_access_key".to_sym => config['secret_key'],
+        ADAPTER_KEYS[adapter][0] => config['access_key'],
+        ADAPTER_KEYS[adapter][1] => config['secret_key'],
         provider: adapter)
-      configure_fog_directory(config['directory'])
+      @adapter = adapter
+      @fog_directory = configure_fog_directory(config['directory'])
       @backups_to_keep = backups_to_keep
     end
 
     def upload(filename, parent_dir)
-      puts "uploading #{filename}..."
+      puts "uploading #{filename} to #{adapter}..."
       fog_directory.files.create(
         key: "#{parent_dir}/#{filename}",
         body: File.open("/tmp/#{filename}")
@@ -26,14 +33,11 @@ module Ariranha
 
     private
 
-    attr_reader :fog_storage, :fog_directory, :backups_to_keep
+    attr_reader :adapter, :fog_storage, :fog_directory, :backups_to_keep
 
     def configure_fog_directory(directory_name)
-      if fog_storage.directories.include?(directory_name)
-        @fog_directory = fog_storage.directories.get(directory_name)
-      else
-        @fog_directory = fog_storage.directories.create(key: directory_name)
-      end
+      fog_storage.directories.get(directory_name) ||
+        fog_storage.directories.create(key: directory_name)
     end
   end
 end

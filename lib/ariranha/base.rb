@@ -35,7 +35,8 @@ module Ariranha
     def config_directories
       @directories = []
       config['providers'].each do |provider, provider_cfg|
-        @directories << Directory.new(provider, provider_cfg)
+        @directories << Directory.new(provider, provider_cfg,
+                                      config['keep_backups'])
       end
     end
   end
